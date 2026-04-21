@@ -1,3 +1,5 @@
+import { authHeader } from './tokenStore'
+
 type CreateIssueReportPayload = {
     title: string
     description: string
@@ -88,6 +90,7 @@ export async function createIssueReport(payload: CreateIssueReportPayload): Prom
     const response = await fetch(buildApiUrl('/api/issue_reports'), {
         method: 'POST',
         credentials: 'include',
+        headers: { ...authHeader() },
         body: formData,
     })
 
@@ -111,6 +114,7 @@ export async function getIssueReports(options: GetIssueReportsOptions = {}): Pro
     const response = await fetch(buildApiUrl(`/api/issue_reports?${query.toString()}`), {
         method: 'GET',
         credentials: 'include',
+        headers: { ...authHeader() },
     })
 
     if (!response.ok) {
@@ -166,6 +170,7 @@ export async function getIssueReport(issueId: number): Promise<IssueReportListIt
     const response = await fetch(buildApiUrl(`/api/issue_reports/${issueId}`), {
         method: 'GET',
         credentials: 'include',
+        headers: { ...authHeader() },
     })
 
     if (!response.ok) {

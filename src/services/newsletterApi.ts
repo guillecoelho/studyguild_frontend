@@ -1,4 +1,5 @@
 import type { NewsletterEntry, NewsletterEntryPayload } from '../types/newsletter'
+import { authHeader } from './tokenStore'
 
 const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 const API_BASE_URL = import.meta.env.DEV ? '' : envApiBaseUrl ?? ''
@@ -85,6 +86,7 @@ export async function getNewsletterEntries(limit = 25): Promise<NewsletterEntry[
     const response = await fetch(buildApiUrl(`/api/newsletter_entries?${params.toString()}`), {
         method: 'GET',
         credentials: 'include',
+        headers: { ...authHeader() },
     })
 
     if (!response.ok) {
@@ -107,6 +109,7 @@ export async function createNewsletterEntry(payload: NewsletterEntryPayload): Pr
         method: 'POST',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -137,6 +140,7 @@ export async function getNewsletterEntry(entryId: number): Promise<NewsletterEnt
     const response = await fetch(buildApiUrl(`/api/newsletter_entries/${entryId}`), {
         method: 'GET',
         credentials: 'include',
+        headers: { ...authHeader() },
     })
 
     if (!response.ok) {
@@ -160,6 +164,7 @@ export async function updateNewsletterEntry(
         method: 'PATCH',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -190,6 +195,7 @@ export async function deleteNewsletterEntry(entryId: number): Promise<void> {
     const response = await fetch(buildApiUrl(`/api/newsletter_entries/${entryId}`), {
         method: 'DELETE',
         credentials: 'include',
+        headers: { ...authHeader() },
     })
 
     if (!response.ok) {

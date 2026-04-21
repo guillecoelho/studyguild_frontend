@@ -1,4 +1,5 @@
 import type { AuthUser, RegisterPayload, UpdateProfilePayload } from '../types/auth'
+import { storeTokens, clearTokens, getAccessToken } from './tokenStore'
 
 const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 const API_BASE_URL = import.meta.env.DEV ? '' : envApiBaseUrl ?? ''
@@ -24,21 +25,12 @@ function buildApiUrl(path: string) {
     return `${API_BASE_URL.replace(/\/$/, '')}${path}`
 }
 
-function getCsrfToken() {
-    if (typeof document === 'undefined') {
-        return null
-    }
-
-    const tokenElement = document.querySelector('meta[name="csrf-token"]')
-    return tokenElement?.getAttribute('content') ?? null
-}
-
 function buildAuthHeaders(headers: Record<string, string> = {}) {
-    const csrfToken = getCsrfToken()
+    const token = getAccessToken()
     return {
         Accept: 'application/json',
         ...headers,
-        ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
     }
 }
 
@@ -247,7 +239,10 @@ export async function loginUser(email: string, password: string) {
         })
 
         if (response.ok) {
-            const body = await tryParseJson(response)
+            const body = await tryParseJson(response) as Record<string, unknown> | null
+            if (body && typeof body.access === 'string') {
+                storeTokens(body.access, typeof body.refresh === 'string' ? body.refresh : undefined)
+            }
             const userFromLogin = normalizeUser(body)
             if (userFromLogin) {
                 return userFromLogin
@@ -329,7 +324,10 @@ export async function registerUser(payload: RegisterPayload) {
         throw new Error(await extractErrorMessage(response, 'Could not register user.'))
     }
 
-    const body = await tryParseJson(response)
+    const body = await tryParseJson(response) as Record<string, unknown> | null
+    if (body && typeof body.access === 'string') {
+        storeTokens(body.access, typeof body.refresh === 'string' ? body.refresh : undefined)
+    }
     const userFromRegister = normalizeUser(body)
     if (userFromRegister) {
         return userFromRegister
@@ -430,5 +428,6 @@ async function signOutWithMethod(method: 'DELETE' | 'POST') {
 }
 
 export async function logoutUser() {
+    clearTokens()
     await signOutWithMethod('DELETE')
 }

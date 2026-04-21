@@ -1,4 +1,5 @@
 import { createConsumer } from '@rails/actioncable'
+import { authHeader } from './tokenStore'
 import type {
     ApiError,
     InvitableStudent,
@@ -252,6 +253,7 @@ async function getFromApi(path: string, init?: RequestInit) {
     const response = await fetch(buildApiUrl(path), {
         credentials: 'include',
         ...init,
+        headers: { ...authHeader(), ...(init?.headers as Record<string, string> ?? {}) },
     })
     if (!response.ok) {
         throw new Error(`Request failed: ${response.status}`)
@@ -356,6 +358,7 @@ export async function createStudentGroup(payload: StudentGroupPayload) {
         method: 'POST',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ student_group: payload }),
@@ -373,6 +376,7 @@ export async function updateStudentGroup(studentGroupId: number, payload: Studen
         method: 'PATCH',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ student_group: payload }),
@@ -401,6 +405,7 @@ export async function inviteStudentToGroup(studentGroupId: number, inviteeId: nu
         method: 'POST',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -434,6 +439,7 @@ export async function leaveStudentGroup(studentGroupId: number, newCreatorStuden
         method: 'POST',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(
@@ -463,6 +469,7 @@ export async function respondToStudentGroupInvitation(
         method: 'PATCH',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -511,6 +518,7 @@ export async function createReunion(payload: ReunionPayload) {
         method: 'POST',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ reunion: payload }),
@@ -540,6 +548,7 @@ export async function joinReunion(reunionId: number, studentId: number) {
         method: 'POST',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -600,6 +609,7 @@ export async function createReunionMessage(reunionId: number, studentId: number,
         method: 'POST',
         credentials: 'include',
         headers: {
+            ...authHeader(),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
