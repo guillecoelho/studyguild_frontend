@@ -8,16 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
-      '/users': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-      },
-      '/cable': {
-        target: 'ws://localhost:3000',
-        ws: true,
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
     },
