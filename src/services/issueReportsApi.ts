@@ -1,4 +1,5 @@
 import { authHeader } from './tokenStore'
+import { fetchWithAuth } from './fetchWithAuth'
 
 type CreateIssueReportPayload = {
     title: string
@@ -87,7 +88,7 @@ export async function createIssueReport(payload: CreateIssueReportPayload): Prom
         formData.append('issue_report[images][]', image)
     })
 
-    const response = await fetch(buildApiUrl('/api/issue_reports'), {
+    const response = await fetchWithAuth(buildApiUrl('/api/issue_reports'), {
         method: 'POST',
         credentials: 'include',
         headers: { ...authHeader() },
@@ -111,7 +112,7 @@ export async function getIssueReports(options: GetIssueReportsOptions = {}): Pro
         query.set('q', options.q.trim())
     }
 
-    const response = await fetch(buildApiUrl(`/api/issue_reports?${query.toString()}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/issue_reports?${query.toString()}`), {
         method: 'GET',
         credentials: 'include',
         headers: { ...authHeader() },
@@ -167,7 +168,7 @@ export async function getIssueReports(options: GetIssueReportsOptions = {}): Pro
 }
 
 export async function getIssueReport(issueId: number): Promise<IssueReportListItem> {
-    const response = await fetch(buildApiUrl(`/api/issue_reports/${issueId}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/issue_reports/${issueId}`), {
         method: 'GET',
         credentials: 'include',
         headers: { ...authHeader() },

@@ -93,6 +93,14 @@ function App() {
   }, [])
 
   useEffect(() => {
+    function handleSessionExpired() {
+      setCurrentUser(null)
+    }
+    window.addEventListener('sessionexpired', handleSessionExpired)
+    return () => window.removeEventListener('sessionexpired', handleSessionExpired)
+  }, [])
+
+  useEffect(() => {
     async function loadInstitutions() {
       try {
         setInstitutions(await getInstitutions())

@@ -1,4 +1,5 @@
 import { authHeader, getAccessToken } from './tokenStore'
+import { fetchWithAuth } from './fetchWithAuth'
 import type {
     ApiError,
     InvitableStudent,
@@ -248,7 +249,7 @@ function extractReunionPayload(payload: unknown): Reunion | null {
 }
 
 async function getFromApi(path: string, init?: RequestInit) {
-    const response = await fetch(buildApiUrl(path), {
+    const response = await fetchWithAuth(buildApiUrl(path), {
         credentials: 'include',
         ...init,
         headers: { ...authHeader(), ...(init?.headers as Record<string, string> ?? {}) },
@@ -352,7 +353,7 @@ export async function refreshStudentGroups() {
 }
 
 export async function createStudentGroup(payload: StudentGroupPayload) {
-    const response = await fetch(buildApiUrl('/api/student_groups'), {
+    const response = await fetchWithAuth(buildApiUrl('/api/student_groups'), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -370,7 +371,7 @@ export async function createStudentGroup(payload: StudentGroupPayload) {
 }
 
 export async function updateStudentGroup(studentGroupId: number, payload: StudentGroupPayload) {
-    const response = await fetch(buildApiUrl(`/api/student_groups/${studentGroupId}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/student_groups/${studentGroupId}`), {
         method: 'PATCH',
         credentials: 'include',
         headers: {
@@ -388,7 +389,7 @@ export async function updateStudentGroup(studentGroupId: number, payload: Studen
 }
 
 export async function deleteStudentGroup(studentGroupId: number) {
-    const response = await fetch(buildApiUrl(`/api/student_groups/${studentGroupId}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/student_groups/${studentGroupId}`), {
         method: 'DELETE',
         credentials: 'include',
     })
@@ -399,7 +400,7 @@ export async function deleteStudentGroup(studentGroupId: number) {
 }
 
 export async function inviteStudentToGroup(studentGroupId: number, inviteeId: number) {
-    const response = await fetch(buildApiUrl(`/api/student_groups/${studentGroupId}/student_group_invitations`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/student_groups/${studentGroupId}/student_group_invitations`), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -433,7 +434,7 @@ export async function getInvitableStudents(studentGroupId: number, query: string
 }
 
 export async function leaveStudentGroup(studentGroupId: number, newCreatorStudentId?: number) {
-    const response = await fetch(buildApiUrl(`/api/student_groups/${studentGroupId}/leave`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/student_groups/${studentGroupId}/leave`), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -463,7 +464,7 @@ export async function respondToStudentGroupInvitation(
     invitationId: number,
     status: 'accepted' | 'declined',
 ) {
-    const response = await fetch(buildApiUrl(`/api/student_group_invitations/${invitationId}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/student_group_invitations/${invitationId}`), {
         method: 'PATCH',
         credentials: 'include',
         headers: {
@@ -512,7 +513,7 @@ export async function refreshReunions(
 }
 
 export async function createReunion(payload: ReunionPayload) {
-    const response = await fetch(buildApiUrl('/api/reunions'), {
+    const response = await fetchWithAuth(buildApiUrl('/api/reunions'), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -542,7 +543,7 @@ export async function getReunionDetails(reunionId: number, signal?: AbortSignal)
 }
 
 export async function joinReunion(reunionId: number, studentId: number) {
-    const response = await fetch(buildApiUrl(`/api/reunions/${reunionId}/join`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/reunions/${reunionId}/join`), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -590,7 +591,7 @@ export async function getPublicStudentProfile(
 
     const query = params.toString()
     const path = `/api/students/${studentId}/public_profile${query ? `?${query}` : ''}`
-    const response = await fetch(buildApiUrl(path), {
+    const response = await fetchWithAuth(buildApiUrl(path), {
         method: 'GET',
         credentials: 'include',
     })
@@ -603,7 +604,7 @@ export async function getPublicStudentProfile(
 }
 
 export async function createReunionMessage(reunionId: number, studentId: number, content: string) {
-    const response = await fetch(buildApiUrl(`/api/reunions/${reunionId}/reunion_messages`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/reunions/${reunionId}/reunion_messages`), {
         method: 'POST',
         credentials: 'include',
         headers: {

@@ -1,5 +1,6 @@
 import type { NewsletterEntry, NewsletterEntryPayload } from '../types/newsletter'
 import { authHeader } from './tokenStore'
+import { fetchWithAuth } from './fetchWithAuth'
 
 const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 const API_BASE_URL = import.meta.env.DEV ? '' : envApiBaseUrl ?? ''
@@ -83,7 +84,7 @@ function normalizeNewsletterEntry(payload: unknown): NewsletterEntry | null {
 
 export async function getNewsletterEntries(limit = 25): Promise<NewsletterEntry[]> {
     const params = new URLSearchParams({ limit: String(limit) })
-    const response = await fetch(buildApiUrl(`/api/newsletter_entries?${params.toString()}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/newsletter_entries?${params.toString()}`), {
         method: 'GET',
         credentials: 'include',
         headers: { ...authHeader() },
@@ -105,7 +106,7 @@ export async function getNewsletterEntries(limit = 25): Promise<NewsletterEntry[
 }
 
 export async function createNewsletterEntry(payload: NewsletterEntryPayload): Promise<NewsletterEntry> {
-    const response = await fetch(buildApiUrl('/api/newsletter_entries'), {
+    const response = await fetchWithAuth(buildApiUrl('/api/newsletter_entries'), {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -137,7 +138,7 @@ export async function createNewsletterEntry(payload: NewsletterEntryPayload): Pr
 }
 
 export async function getNewsletterEntry(entryId: number): Promise<NewsletterEntry> {
-    const response = await fetch(buildApiUrl(`/api/newsletter_entries/${entryId}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/newsletter_entries/${entryId}`), {
         method: 'GET',
         credentials: 'include',
         headers: { ...authHeader() },
@@ -160,7 +161,7 @@ export async function updateNewsletterEntry(
     entryId: number,
     payload: NewsletterEntryPayload,
 ): Promise<NewsletterEntry> {
-    const response = await fetch(buildApiUrl(`/api/newsletter_entries/${entryId}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/newsletter_entries/${entryId}`), {
         method: 'PATCH',
         credentials: 'include',
         headers: {
@@ -192,7 +193,7 @@ export async function updateNewsletterEntry(
 }
 
 export async function deleteNewsletterEntry(entryId: number): Promise<void> {
-    const response = await fetch(buildApiUrl(`/api/newsletter_entries/${entryId}`), {
+    const response = await fetchWithAuth(buildApiUrl(`/api/newsletter_entries/${entryId}`), {
         method: 'DELETE',
         credentials: 'include',
         headers: { ...authHeader() },

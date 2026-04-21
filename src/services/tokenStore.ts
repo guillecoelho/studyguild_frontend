@@ -15,6 +15,10 @@ export function getAccessToken(): string | null {
     return localStorage.getItem(JWT_ACCESS_KEY)
 }
 
+export function getRefreshToken(): string | null {
+    return localStorage.getItem(JWT_REFRESH_KEY)
+}
+
 export function authHeader(): Record<string, string> {
     const token = getAccessToken()
     return token ? { Authorization: `Bearer ${token}` } : {}

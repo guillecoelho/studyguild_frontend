@@ -1,5 +1,6 @@
 import type { AuthUser, RegisterPayload, UpdateProfilePayload } from '../types/auth'
 import { storeTokens, clearTokens, getAccessToken } from './tokenStore'
+import { fetchWithAuth } from './fetchWithAuth'
 
 const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 const API_BASE_URL = import.meta.env.DEV ? '' : envApiBaseUrl ?? ''
@@ -190,7 +191,7 @@ async function extractErrorMessage(response: Response, fallbackMessage: string) 
 }
 
 async function fetchCurrentUserFromEndpoint(endpoint: string) {
-    const response = await fetch(buildApiUrl(endpoint), {
+    const response = await fetchWithAuth(buildApiUrl(endpoint), {
         method: 'GET',
         credentials: 'include',
         headers: buildAuthHeaders(),
@@ -353,7 +354,7 @@ export async function updateCurrentUserProfile(payload: UpdateProfilePayload) {
         formData.set('user[remove_profile_photo]', 'true')
     }
 
-    const response = await fetch(buildApiUrl(AUTH_ME_ENDPOINT), {
+    const response = await fetchWithAuth(buildApiUrl(AUTH_ME_ENDPOINT), {
         method: 'PATCH',
         credentials: 'include',
         headers: buildAuthHeaders(),
@@ -374,7 +375,7 @@ export async function updateCurrentUserProfile(payload: UpdateProfilePayload) {
 }
 
 export async function getInstitutions() {
-    const response = await fetch(buildApiUrl(INSTITUTIONS_ENDPOINT), {
+    const response = await fetchWithAuth(buildApiUrl(INSTITUTIONS_ENDPOINT), {
         method: 'GET',
         credentials: 'include',
         headers: buildAuthHeaders(),
