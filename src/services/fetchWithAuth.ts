@@ -1,4 +1,4 @@
-import { getAccessToken, getRefreshToken, storeTokens, clearTokens } from './tokenStore'
+import { getRefreshToken, storeTokens, clearTokens } from './tokenStore'
 
 const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 const API_BASE_URL = import.meta.env.DEV ? '' : envApiBaseUrl ?? ''
