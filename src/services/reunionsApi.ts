@@ -1,5 +1,4 @@
-import { createConsumer } from '@rails/actioncable'
-import { authHeader } from './tokenStore'
+import { authHeader, getAccessToken } from './tokenStore'
 import type {
     ApiError,
     InvitableStudent,
@@ -18,7 +17,6 @@ import type {
 const envApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 const API_BASE_URL = import.meta.env.DEV ? '' : envApiBaseUrl ?? ''
 
-let cableConsumer: ReturnType<typeof createConsumer> | null = null
 
 function buildApiUrl(path: string) {
     if (!API_BASE_URL) {
@@ -634,26 +632,16 @@ export async function createReunionMessage(reunionId: number, studentId: number,
     return message
 }
 
-function resolveWebSocketUrl() {
+function resolveWebSocketUrl(reunionId: number): string {
+    const token = getAccessToken() ?? ''
+    const path = `/ws/reunions/${reunionId}/?token=${encodeURIComponent(token)}`
     if (import.meta.env.DEV) {
-        // In development, use Vite proxy (/cable -> Rails) so cookies/session keep working.
-        return '/cable'
+        return path
     }
-
     const base = API_BASE_URL || window.location.origin
     const parsed = new URL(base, window.location.origin)
     const protocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:'
-
-    return `${protocol}//${parsed.host}/cable`
-}
-
-function getCableConsumer() {
-    if (cableConsumer) {
-        return cableConsumer
-    }
-
-    cableConsumer = createConsumer(resolveWebSocketUrl())
-    return cableConsumer
+    return `${protocol}//${parsed.host}${path}`
 }
 
 type SubscriptionHandlers = {
@@ -661,34 +649,24 @@ type SubscriptionHandlers = {
 }
 
 export function subscribeToReunionMessages(reunionId: number, handlers: SubscriptionHandlers) {
-    const subscription = getCableConsumer().subscriptions.create(
-        {
-            channel: 'ReunionChannel',
-            reunion_id: reunionId,
-        },
-        {
-            received(data: unknown) {
-                if (typeof data !== 'object' || data === null) {
-                    return
-                }
+    const ws = new WebSocket(resolveWebSocketUrl(reunionId))
 
-                const payload = data as Record<string, unknown>
-                if (payload.event !== 'message_created') {
-                    return
-                }
-
-                const message = normalizeReunionMessage(payload.message)
-                if (!message) {
-                    return
-                }
-
-                handlers.onMessageCreated(message)
-            },
-        },
-    )
+    ws.onmessage = (event) => {
+        let data: unknown
+        try {
+            data = JSON.parse(event.data as string)
+        } catch {
+            return
+        }
+        if (typeof data !== 'object' || data === null) return
+        const payload = data as Record<string, unknown>
+        if (payload.event !== 'message_created') return
+        const message = normalizeReunionMessage(payload.message)
+        if (message) handlers.onMessageCreated(message)
+    }
 
     return () => {
-        subscription.unsubscribe()
+        ws.close()
     }
 }
 
